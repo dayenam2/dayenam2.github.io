@@ -98,14 +98,7 @@
       var max_width = 560;
       var max_height = 400;
 
-      var points_x = [0,0,0,0,0,0,0,0,0,0];
-      var points_y = [0,0,0,0,0,0,0,0,0,0];
-      
       var video_list = [];
-      var video_col2 = [];
-      var video_col3 = [];
-      var video_col4 = [];
-
       var button_num = -1;
 
       var player1 = videojs("#refer_video1");
@@ -169,7 +162,7 @@
 
       function clickOne() {
         if (button_num == 1) {
-          $("#none_btn").addClass("toggle-off");
+          $("#one_btn").addClass("toggle-off");
           button_num = -1;
         }
         else {
@@ -185,7 +178,7 @@
 
       function clickMulti() {
         if (button_num == 2) {
-          $("#none_btn").addClass("toggle-off");
+          $("#multi_btn").addClass("toggle-off");
           button_num = -1;
         }
         else {
