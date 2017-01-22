@@ -148,6 +148,7 @@
         if (button_num == 0) {
           $("#none_btn").addClass("toggle-off");
           button_num = -1;
+          $("#next_btn").attr("disabled", true);
         }
         else {
           $("#none_btn").removeClass("toggle-off");
@@ -164,6 +165,7 @@
         if (button_num == 1) {
           $("#one_btn").addClass("toggle-off");
           button_num = -1;
+          $("#next_btn").attr("disabled", true);
         }
         else {
           $("#one_btn").removeClass("toggle-off");
@@ -180,6 +182,7 @@
         if (button_num == 2) {
           $("#multi_btn").addClass("toggle-off");
           button_num = -1;
+          $("#next_btn").attr("disabled", true);
         }
         else {
           $("#multi_btn").removeClass("toggle-off");
