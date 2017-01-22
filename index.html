@@ -156,9 +156,8 @@
           $("#one_btn").addClass("toggle-off");
           $("#multi_btn").addClass("toggle-off");
           button_num = 0;
+          $("#next_btn").attr("disabled", false);
         }
-
-        $("#next_btn").attr("disabled", false);
       }
 
       function clickOne() {
@@ -173,9 +172,8 @@
           $("#none_btn").addClass("toggle-off");
           $("#multi_btn").addClass("toggle-off");
           button_num = 1;
+          $("#next_btn").attr("disabled", false);
         }
-
-        $("#next_btn").attr("disabled", false);
       }
 
       function clickMulti() {
@@ -190,9 +188,8 @@
           $("#none_btn").addClass("toggle-off");
           $("#one_btn").addClass("toggle-off");
           button_num = 2;
+          $("#next_btn").attr("disabled", false);
         }
-
-        $("#next_btn").attr("disabled", false);
       }
 
       function resetNumBtns() {
