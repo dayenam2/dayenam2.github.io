@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jquery-migrate-3.0.0.js"></script>
+    
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/video.min.js"></script>
+
+    <title>Interaction counting in a video</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/video-js.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+  </head>
+
+  <body onLoad="init()">
+  <div class="container">
+    <div class="row"></div>
+  </div>
+
+  <div class="container" style="margin-top: 20px;">
+    <div class="starter-template">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0"
+        aria-valuemin="0" aria-valuemax="100" style="width:0%">
+        <span>0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="starter-template">
+      <h1>Interaction counting in a video</h1>
+      <p class="lead">Watch a video and count a number of interaction(s)<br>
+      Select a button on the right of a given video. <br>
+      You can click the button again to cancel. </p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row"></div>
+  </div>
+
+  <div class="container">
+    <div class="row vertical-align">
+      <div class="col-md-6">
+        <video class="video-js vjs-big-play-centered" autoplay loop muted controls preload="auto" data-setup='{"fluid": true, "playbackRates": [0.5, 1, 1.5, 2, 3, 4] }' id="refer_video1">
+          <p class="vjs-no-js">
+            To view this video please enable JavaScript, and consider upgrading to a web browser that
+            <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+          </p>
+        </video>
+      </div>
+      <div class="col-md-6" style="text-align: center;">
+        <button type="button" class="btn btn-primary btn-lg toggle-off" style="margin: 5px;" id="none_btn">None</button>
+        <button type="button" class="btn btn-primary btn-lg toggle-off" style="margin: 5px;" id="one_btn">One</button>
+        <button type="button" class="btn btn-primary btn-lg toggle-off" style="margin: 5px;" id="multi_btn">Multiple</button>
+      </div>
+    </div>
+  </div>
+
+ 
+  <div class="container" style="margin-top: 30px;">
+    <div="row">
+      <div class="col-md-6" style="text-align: left">
+        <button type="button" class="btn btn-primary" onclick="window.open('instr.html');">Read Instruction</button>
+      </div>
+      <div class="col-md-6" style="text-align: right">
+        <button type="button" class="btn btn-success" id="next_btn" disabled>Next</button>
+        <button type="button" class="btn btn-success" id="submit_btn" style="display: none">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <form name='mturk_form' method='post' id='mturk_form'>
+      <input type='hidden' value='' name='numTest' id='numTest' />
+      <input type='hidden' value='' name='taskId' id='taskId' />
+      <input type='hidden' value='' name='assignmentId' id='assignmentId'/>
+      <input type='hidden' value='' name='workerId' id='workerId'/>
+    </form>
+  </div>
+    
+  </body>
+    <script>
+      var required_pts = 10;
+      var num_pts = 0;
+      var num_test = 0;
+      var test_num = 1;
+
+      var max_width = 560;
+      var max_height = 400;
+
+      var points_x = [0,0,0,0,0,0,0,0,0,0];
+      var points_y = [0,0,0,0,0,0,0,0,0,0];
+      
+      var video_list = [];
+      var video_col2 = [];
+      var video_col3 = [];
+      var video_col4 = [];
+
+      var button_num = -1;
+
+      var player1 = videojs("#refer_video1");
+
+      var is_none = false;
+
+      $("#none_btn").on('click', clickNone);
+      $("#one_btn").on('click', clickOne);
+      $("#multi_btn").on('click', clickMulti);
+
+      $("#next_btn").on('click', getAnswer);
+      $("#submit_btn").on('click', submitAnswer);
+
+      function init() {
+        task_id = 1;
+        aid = 123;
+        wid = 234;
+        turkSubmit = 432;
+
+        console.log("task_id: " + task_id);
+        console.log("num_test: " + num_test);
+
+        
+        document.getElementById('taskId').value = task_id;
+        document.getElementById('assignmentId').value = aid;
+        document.getElementById('workerId').value = wid;
+        document.getElementById('mturk_form').action = turkSubmit + "/mturk/externalSubmit";
+
+        task_file_url = "tasklist/task" + task_id + ".txt";
+        jQuery.get(task_file_url, function(data) {
+          var lines = data.split("\n");
+          num_test = lines[0];
+          console.log("num_test: " + num_test);
+          document.getElementById('numTest').value = num_test;
+          for (var i=1, len=lines.length; i<len; i++){
+            video_list.push(lines[i]);
+
+            if(i == num_test) {
+              player1.src({type: 'video/mp4', src: "resource/"+video_list[0]});
+              updateProgressbar();      
+            }
+          }
+        });
+      }
+
+      function clickNone() {
+        if (button_num == 0) {
+          $("#none_btn").addClass("toggle-off");
+          button_num = -1;
+        }
+        else {
+          $("#none_btn").removeClass("toggle-off");
+
+          $("#one_btn").addClass("toggle-off");
+          $("#multi_btn").addClass("toggle-off");
+          button_num = 0;
+        }
+
+        $("#next_btn").attr("disabled", false);
+      }
+
+      function clickOne() {
+        if (button_num == 1) {
+          $("#none_btn").addClass("toggle-off");
+          button_num = -1;
+        }
+        else {
+          $("#one_btn").removeClass("toggle-off");
+
+          $("#none_btn").addClass("toggle-off");
+          $("#multi_btn").addClass("toggle-off");
+          button_num = 1;
+        }
+
+        $("#next_btn").attr("disabled", false);
+      }
+
+      function clickMulti() {
+        if (button_num == 2) {
+          $("#none_btn").addClass("toggle-off");
+          button_num = -1;
+        }
+        else {
+          $("#multi_btn").removeClass("toggle-off");
+
+          $("#none_btn").addClass("toggle-off");
+          $("#one_btn").addClass("toggle-off");
+          button_num = 2;
+        }
+
+        $("#next_btn").attr("disabled", false);
+      }
+
+      function resetNumBtns() {
+        $("#none_btn").addClass("toggle-off");
+        $("#one_btn").addClass("toggle-off");
+        $("#multi_btn").addClass("toggle-off");        
+        button_num = -1;
+      }
+
+      function getAnswer() {
+        console.log("getAnswer");
+
+
+        var answer = video_list[test_num-1] + ":::::" + button_num;
+
+        var input_form = '<input type="hidden" class="ans" id="ans' + test_num + '" name="ans' + test_num + '" value="' + answer + '"></input>';
+        $('#mturk_form').append(input_form);
+
+        console.log(answer);
+
+        getNextData();
+      }
+
+      function getNextData() {
+        resetNumBtns();
+
+        player1.src({type: 'video/mp4', src: "resource/"+video_list[test_num]});
+
+        test_num = test_num + 1;
+        updateProgressbar();
+
+        if(test_num == num_test) {
+          $("#next_btn").css("display", "none");
+          $("#submit_btn").css("display", "inline-block");
+        }
+        console.log("next data");
+      }
+
+      function submitAnswer() {
+        getAnswer();
+        console.log($("#numTest").val());
+        $.get('test.php?'+$('#mturk_form').serialize(), function(data) {
+          $('#mturk_form').submit();
+        });
+      }
+
+      function updateProgressbar() {
+        percent = Math.ceil(test_num / num_test * 100);
+        percent_str = percent + "%";
+
+        $(".progress-bar").attr("aria-valuenow", percent);
+        $(".progress-bar").css("width", percent_str);
+        $(".progress-bar span").text(percent_str);
+      }
+    </script>
+
+</html>
